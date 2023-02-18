@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { GetServerSideProps } from "next";
 import { prisma } from "../lib/prisma";
+import { useRouter } from "next/router";
 
 interface FormData {
   title: string;
@@ -24,18 +25,43 @@ export default function Home({ notes }: Notes) {
     content: "",
     id: "",
   });
+  const router = useRouter();
 
-  console.log(notes);
+  const refreshData = () => {
+    router.replace(router.asPath);
+  };
 
   const create = async (data: FormData) => {
+    if (data.content.length > 0 && data.title.length > 0) {
+      try {
+        await fetch("http://localhost:3000/api/create", {
+          body: JSON.stringify(data),
+          headers: {
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+        }).then(() => {
+          setForm({ title: "", content: "", id: "" });
+          refreshData();
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      alert("Fill Out ALL Fields Please");
+    }
+  };
+
+  const deleteNote = async (id: String) => {
     try {
-      await fetch("http://localhost:3000/api/create", {
-        body: JSON.stringify(data),
+      await fetch(`http://localhost:3000/api/note/${id}`, {
         headers: {
           "Content-Type": "application/json",
         },
-        method: "POST",
-      }).then(() => setForm({ title: "", content: "", id: "" }));
+        method: "DELETE",
+      }).then(() => {
+        refreshData();
+      });
     } catch (error) {
       console.log(error);
     }
@@ -79,6 +105,28 @@ export default function Home({ notes }: Notes) {
           Add+
         </button>
       </form>
+      <div className="w-auto min-w-[25%] max-w-min mt-20 mx-auto space-y-6 flex flex-col items-start">
+        <ul>
+          {notes?.map((note) => (
+            <li key={note.id} className="border-b gorder-gray-600 p-2">
+              <div className="flex justify-between">
+                <div className="flex-1">
+                  <h3 className="font-bold">{note.title}</h3>
+                  <p className="text-sm">{note.content}</p>
+                </div>
+                <button
+                  className="bg-red-500 ml-5 px-3 text-white rounded "
+                  onClick={() => {
+                    deleteNote(note.id);
+                  }}
+                >
+                  X
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
