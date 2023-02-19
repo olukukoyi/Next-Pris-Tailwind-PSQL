@@ -41,8 +41,14 @@ export default function Home({ notes }: Notes) {
           },
           method: "POST",
         }).then(() => {
-          setForm({ title: "", content: "", id: "" });
-          refreshData();
+          if (data.id) {
+            deleteNote(data.id);
+            setForm({ title: "", content: "", id: "" });
+            refreshData();
+          } else {
+            setForm({ title: "", content: "", id: "" });
+            refreshData();
+          }
         });
       } catch (error) {
         console.log(error);
@@ -121,6 +127,18 @@ export default function Home({ notes }: Notes) {
                   }}
                 >
                   X
+                </button>
+                <button
+                  className="bg-blue-500 ml-1 px-3 text-white rounded "
+                  onClick={() => {
+                    setForm({
+                      title: note.title,
+                      content: note.content,
+                      id: note.id,
+                    });
+                  }}
+                >
+                  Update
                 </button>
               </div>
             </li>
