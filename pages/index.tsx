@@ -41,14 +41,8 @@ export default function Home({ notes }: Notes) {
           },
           method: "POST",
         }).then(() => {
-          if (data.id) {
-            deleteNote(data.id);
-            setForm({ title: "", content: "", id: "" });
-            refreshData();
-          } else {
-            setForm({ title: "", content: "", id: "" });
-            refreshData();
-          }
+          setForm({ title: "", content: "", id: "" });
+          refreshData();
         });
       } catch (error) {
         console.log(error);
@@ -60,12 +54,29 @@ export default function Home({ notes }: Notes) {
 
   const deleteNote = async (id: String) => {
     try {
-      await fetch(`http://localhost:3000/api/note/${id}`, {
+      await fetch(`http://localhost:3000/api/delete/${id}`, {
         headers: {
           "Content-Type": "application/json",
         },
         method: "DELETE",
       }).then(() => {
+        refreshData();
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const updateNote = async (data: FormData, id: String) => {
+    try {
+      await fetch(`http://localhost:3000/api/update/${id}`, {
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "PUT",
+      }).then(() => {
+        setForm({ title: "", content: "", id: "" });
         refreshData();
       });
     } catch (error) {
@@ -84,6 +95,10 @@ export default function Home({ notes }: Notes) {
   return (
     <div>
       <h1 className="text-center font-bold text-2xl mt-4">Notes</h1>
+      <p className="my-5 text-red-400 italic font-bold text-center border border-w-[30%]">
+        {" "}
+        To update, write content in form then click update on the form
+      </p>
       <form
         className="w-auto min-w-[25%] max-w-min mx-auto space-y-6 flex flex-col items-stretch"
         onSubmit={(e: any) => {
@@ -121,7 +136,7 @@ export default function Home({ notes }: Notes) {
                   <p className="text-sm">{note.content}</p>
                 </div>
                 <button
-                  className="bg-red-500 ml-5 px-3 text-white rounded "
+                  className="bg-red-500 ml-5 px-3 text-white rounded hover:opacity-80 duration-100 ease-in"
                   onClick={() => {
                     deleteNote(note.id);
                   }}
@@ -129,13 +144,9 @@ export default function Home({ notes }: Notes) {
                   X
                 </button>
                 <button
-                  className="bg-blue-500 ml-1 px-3 text-white rounded "
+                  className="bg-blue-500 ml-1 px-3 text-white rounded hover:opacity-80 duration-100 ease-in"
                   onClick={() => {
-                    setForm({
-                      title: note.title,
-                      content: note.content,
-                      id: note.id,
-                    });
+                    updateNote(form, note.id);
                   }}
                 >
                   Update

@@ -5,8 +5,10 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const noteID = req.query.id;
-
+  //global vars
+  const noteID = req.query.id; //ID
+  const { title, content } = req.body; // REQ VALS
+  //
   if (req.method === "DELETE") {
     const note = await prisma.note.delete({
       where: {
@@ -15,6 +17,6 @@ export default async function handler(
     });
     res.json(note);
   } else {
-    console.log("Note could not be deleted");
+    console.log("Unable to delete");
   }
 }
