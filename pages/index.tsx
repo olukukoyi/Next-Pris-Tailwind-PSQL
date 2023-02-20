@@ -68,19 +68,23 @@ export default function Home({ notes }: Notes) {
   };
 
   const updateNote = async (data: FormData, id: String) => {
-    try {
-      await fetch(`http://localhost:3000/api/update/${id}`, {
-        body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "PUT",
-      }).then(() => {
-        setForm({ title: "", content: "", id: "" });
-        refreshData();
-      });
-    } catch (error) {
-      console.log(error);
+    if (data.title.length > 1 || data.content.length > 1) {
+      try {
+        await fetch(`http://localhost:3000/api/update/${id}`, {
+          body: JSON.stringify(data),
+          headers: {
+            "Content-Type": "application/json",
+          },
+          method: "PUT",
+        }).then(() => {
+          setForm({ title: "", content: "", id: "" });
+          refreshData();
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      alert("Please Fill Out All Fields");
     }
   };
 
